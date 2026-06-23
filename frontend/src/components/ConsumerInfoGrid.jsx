@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function ConsumerInfoGrid({ name, purok, houseNumber }) {
   return (
     <div className="p-5 bg-white rounded-xl border border-gray-100 shadow-sm">

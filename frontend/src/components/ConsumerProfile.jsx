@@ -1,4 +1,3 @@
-import React from 'react';
 import ConsumerInfoGrid from '../components/ConsumerInfoGrid';
 import CurrentBalanceCard from '../components/CurrentBalanceCard';
 import MonthlyConsumptionWidget from '../components/MonthlyConsumptionWidget';

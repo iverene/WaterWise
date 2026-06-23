@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function CurrentBalanceCard({ amountDue = 0 }) {
   const isOverdue = amountDue > 0;
   

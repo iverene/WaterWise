@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function MonthlyConsumptionWidget({ month = 'N/A', usage = 0 }) {
   return (
     <div className="p-5 bg-white rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
