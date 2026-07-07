@@ -1,28 +1,10 @@
-let temporaryDatabaseAlerts = [
-  {
-    id: 'valid-alert-101',
-    profile_id: 'owner-uuid-101',
-    category: 'bill',
-    title: 'June Bill Overdue',
-    message: 'Your current volumetric balance due is ₱1,450.75.',
-    is_read: false
-  },
-  {
-    id: 'alert-id-purok-1',
-    profile_id: 'original-owner-purok-1', 
-    category: 'announcement',
-    title: 'Main Pipeline Maintenance',
-    message: 'Temporary water service interruption.',
-    is_read: false
-  }
-];
+import { notificationModel } from '../models/notificationModel.js';
 
 export const notificationService = {
-  /**
-   * Retrieves account-specific alert streams mapped cleanly by category
-   */
+
   getUserNotifications: (userId) => {
-    const userRows = temporaryDatabaseAlerts.filter(item => item.profile_id === userId);
+    const allAlerts = notificationModel.findAll();
+    const userRows = allAlerts.filter(item => item.profile_id === userId);
     
     const accountBills = userRows.filter(item => item.category === 'bill');
     const adminAnnouncements = userRows.filter(item => item.category === 'announcement');
@@ -34,19 +16,16 @@ export const notificationService = {
     };
   },
 
-  /**
-   * Evaluates security permissions and marks a specific target notification as read
-   */
   markAsRead: (notificationId, userId) => {
-    const targetAlert = temporaryDatabaseAlerts.find(item => item.id === notificationId);
+    const targetAlert = notificationModel.findById(notificationId);
 
     if (!targetAlert) {
-      return { status: 404, data: { error: 'Not Found' } };
+      return { errorType: 'NOT_FOUND', data: { error: 'Not Found' } };
     }
 
     if (targetAlert.profile_id !== userId) {
       return { 
-        status: 403, 
+        errorType: 'FORBIDDEN', 
         data: { 
           error: 'Forbidden', 
           message: 'Security Violation: Access denied to cross-account notification parameters.' 
@@ -54,9 +33,7 @@ export const notificationService = {
       };
     }
 
-    // Mutate the flag status directly in memory
-    targetAlert.is_read = true;
-
-    return { status: 200, data: { modified: true, id: notificationId, is_read: true } };
+    const updatedRecord = notificationModel.updateReadStatus(notificationId, true);
+    return { errorType: null, data: { modified: true, id: updatedRecord.id, is_read: updatedRecord.is_read } };
   }
 };
