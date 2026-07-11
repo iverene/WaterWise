@@ -1,0 +1,225 @@
+import { useMemo, useState } from "react";
+import { FiBookOpen, FiDroplet, FiFileText, FiGrid, FiMap, FiMessageSquare, FiUsers, FiX } from "react-icons/fi";
+import { useLocation, useNavigate } from "react-router";
+import { MOCK_ROLE_STORAGE_KEY } from "../config/mockAuth";
+import Header from "./Header";
+import NotificationBadgeTrigger from "./NotificationBadgeTrigger";
+import NotificationPage from "../pages/NotificationPage";
+import Sidebar from "./Sidebar";
+
+const ROLE_CONFIG = {
+  admin: {
+    label: "Admin",
+    profile: "Barangay Official",
+    userName: "Barangay Admin",
+    basePath: "/admin",
+    homePath: "/admin/dashboard",
+    links: [
+      { label: "Dashboard", path: "/admin/dashboard", Icon: FiGrid },
+      { label: "Consumers", path: "/admin/consumers", Icon: FiUsers },
+      { label: "Readings", path: "/admin/readings", Icon: FiBookOpen },
+      { label: "Billings", path: "/admin/billings", Icon: FiFileText },
+      { label: "Events", path: "/admin/events", Icon: FiMap },
+      { label: "Announcements", path: "/admin/announcements", Icon: FiMessageSquare },
+    ],
+  },
+  "meter-reader": {
+    label: "Meter Reader",
+    profile: "Field Personnel",
+    userName: "Meter Reader",
+    basePath: "/meter-reader",
+    homePath: "/meter-reader/readings-entry",
+    links: [
+      { label: "Readings Entry", path: "/meter-reader/readings-entry", Icon: FiBookOpen },
+      { label: "Consumer Directory", path: "/meter-reader/consumer-directory", Icon: FiUsers },
+    ],
+  },
+  consumer: {
+    label: "Consumer",
+    profile: "Community Portal",
+    userName: "Iverene Grace M. Causapin",
+    basePath: "/consumer",
+    homePath: "/consumer/usage-metrics",
+    links: [
+      { label: "Usage Metrics", path: "/consumer/usage-metrics", Icon: FiDroplet },
+      { label: "Billing Ledger", path: "/consumer/billing-ledger", Icon: FiFileText },
+      { label: "Profile Details", path: "/consumer/profile-details", Icon: FiUsers },
+    ],
+  },
+};
+
+const notificationSeeds = [
+  {
+    id: "notif-bill-1",
+    category: "bill",
+    title: "New billing generated",
+    message: "June 2026 billing is ready. Open the receipt preview.",
+    isRead: false,
+    actionPath: "/consumer/billing-ledger?receipt=official",
+  },
+  {
+    id: "notif-admin-1",
+    category: "announcement",
+    title: "Distribution advisory",
+    message: "Purok 3 maintenance window is scheduled for field validation.",
+    isRead: false,
+  },
+];
+
+function getRoleFromPath(pathname) {
+  return Object.entries(ROLE_CONFIG).find(([, config]) =>
+    pathname.startsWith(config.basePath),
+  )?.[0];
+}
+
+function getStoredRole() {
+  if (typeof window === "undefined") {
+    return "admin";
+  }
+
+  const storedRole = window.localStorage.getItem(MOCK_ROLE_STORAGE_KEY);
+  return ROLE_CONFIG[storedRole] ? storedRole : "admin";
+}
+
+function formatPageTitle(pathname, activeRole) {
+  const currentLink = ROLE_CONFIG[activeRole].links.find(
+    (link) => link.path === pathname,
+  );
+
+  return currentLink?.label ?? "Dashboard";
+}
+
+export default function AppLayout({ children }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const pathRole = getRoleFromPath(location.pathname);
+  const [mockRole, setMockRole] = useState(getStoredRole);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState(notificationSeeds);
+  const activeRole = pathRole ?? mockRole;
+  const activeRoleConfig = ROLE_CONFIG[activeRole];
+
+  const roleOptions = useMemo(
+    () =>
+      Object.entries(ROLE_CONFIG).map(([value, config]) => ({
+        label: config.label,
+        value,
+      })),
+    [],
+  );
+
+  const unreadCount = notifications.filter((item) => !item.isRead).length;
+
+  const handleRoleChange = (nextRole) => {
+    if (!ROLE_CONFIG[nextRole]) {
+      return;
+    }
+
+    window.localStorage.setItem(MOCK_ROLE_STORAGE_KEY, nextRole);
+    setMockRole(nextRole);
+    navigate(ROLE_CONFIG[nextRole].homePath);
+  };
+
+  const handleLogout = () => {
+    window.localStorage.removeItem(MOCK_ROLE_STORAGE_KEY);
+    setMockRole("admin");
+    setIsNotificationOpen(false);
+    navigate("/login");
+  };
+
+  const handleMarkNotificationAsRead = (notificationId) => {
+    setNotifications((currentNotifications) =>
+      currentNotifications.map((item) =>
+        item.id === notificationId ? { ...item, isRead: true } : item,
+      ),
+    );
+  };
+
+  const handleNotificationClick = (notification) => {
+    if (notification.category === "bill" && notification.actionPath) {
+      setIsNotificationOpen(false);
+      navigate(notification.actionPath);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFC] font-[Inter,system-ui,sans-serif] text-[#0F172A]">
+      <Header
+        activeRole={activeRole}
+        notificationSlot={
+          <NotificationBadgeTrigger
+            onToggleHub={() => setIsNotificationOpen((isOpen) => !isOpen)}
+            unreadCount={unreadCount}
+          />
+        }
+        onRoleChange={handleRoleChange}
+        roles={roleOptions}
+        title="WaterWise"
+      />
+
+      <div className="lg:flex">
+        <Sidebar
+          activeRoleLabel={activeRoleConfig.label}
+          items={activeRoleConfig.links}
+          onLogout={handleLogout}
+          userName={activeRoleConfig.userName}
+        />
+
+        <main className="min-w-0 flex-1">
+          <div className="h-full overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+            <div className="mx-auto max-w-7xl">
+              <div className="mb-6">
+                <h1 className="mt-2 text-3xl font-bold leading-tight tracking-[-0.02em] text-[#0F172A]">
+                  {formatPageTitle(location.pathname, activeRole)}
+                </h1>
+              </div>
+              {children}
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <div
+        aria-hidden={!isNotificationOpen}
+        className={[
+          "fixed inset-0 z-40 bg-[#0F172A]/25 transition-opacity",
+          isNotificationOpen ? "opacity-100" : "pointer-events-none opacity-0",
+        ].join(" ")}
+        onClick={() => setIsNotificationOpen(false)}
+      />
+
+      <aside
+        aria-label="Notification center"
+        className={[
+          "fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-slate-200 bg-[#F8FAFC] shadow-[0_24px_80px_rgba(15,23,42,0.18)] transition-transform duration-200",
+          isNotificationOpen ? "translate-x-0" : "translate-x-full",
+        ].join(" ")}
+      >
+        <div className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-5">
+          <div>
+            <p className="text-sm font-bold text-[#0F172A]">
+              Notification center
+            </p>
+            <p className="text-xs font-medium text-slate-500">
+              {unreadCount} unread alert{unreadCount === 1 ? "" : "s"}
+            </p>
+          </div>
+          <button
+            aria-label="Close notification center"
+            className="flex h-10 w-10 items-center justify-center rounded-[8px] border border-slate-200 bg-white text-[#0284C7] transition hover:bg-[#F8FAFC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2"
+            onClick={() => setIsNotificationOpen(false)}
+            type="button"
+          >
+            <FiX aria-hidden="true" className="h-5 w-5" />
+          </button>
+        </div>
+
+        <NotificationPage
+          notifications={notifications}
+          onNotificationClick={handleNotificationClick}
+          onMarkAsRead={handleMarkNotificationAsRead}
+        />
+      </aside>
+    </div>
+  );
+}

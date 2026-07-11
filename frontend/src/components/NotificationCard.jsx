@@ -1,5 +1,13 @@
-export default function NotificationCard({ item, onMarkAsRead }) {
+export default function NotificationCard({ item, onMarkAsRead, onNotificationClick }) {
   if (!item) return null;
+
+  const handleClick = () => {
+    if (!item.isRead && onMarkAsRead) {
+      onMarkAsRead(item.id);
+    }
+
+    onNotificationClick?.(item);
+  };
 
   return (
     <div
@@ -10,7 +18,7 @@ export default function NotificationCard({ item, onMarkAsRead }) {
       className={`p-4 mb-3 rounded-lg cursor-pointer transition-colors ${
         item.isRead ? 'bg-neutral text-gray-500' : 'bg-unread-highlight text-gray-950 font-semibold'
       }`}
-      onClick={() => !item.isRead && onMarkAsRead && onMarkAsRead(item.id)}
+      onClick={handleClick}
     >
       <h5>{item.title}</h5>
       <p className="text-sm font-normal">{item.message}</p>

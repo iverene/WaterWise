@@ -1,31 +1,31 @@
 export default function ConsumerInfoGrid({ name, purok, houseNumber }) {
   return (
-    <div className="p-5 bg-white rounded-xl border border-gray-100 shadow-sm">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+    <section className="rounded-[8px] border border-slate-200 bg-white p-5 shadow-[0_18px_56px_rgba(15,23,42,0.05)]">
+      <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-[#0284C7]">
         Consumer Information
       </h3>
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div>
-          <span className="block text-sm text-gray-500">Full Name</span>
-          <span className="text-base font-medium text-gray-800" data-testid="info-name">
+          <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Full Name</span>
+          <span className="mt-1 block text-base font-bold tracking-[-0.02em] text-[#0F172A]" data-testid="info-name">
             {name || 'N/A'}
           </span>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <span className="block text-sm text-gray-500">Purok</span>
-            <span className="text-base font-medium text-gray-800" data-testid="info-purok">
+            <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Purok</span>
+            <span className="mt-1 block text-base font-bold text-[#0F172A]" data-testid="info-purok">
               {purok || 'N/A'}
             </span>
           </div>
           <div>
-            <span className="block text-sm text-gray-500">House No.</span>
-            <span className="text-base font-medium text-gray-800" data-testid="info-house">
+            <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">House No.</span>
+            <span className="mt-1 block text-base font-bold text-[#0F172A]" data-testid="info-house">
               {houseNumber || 'N/A'}
             </span>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
