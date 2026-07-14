@@ -40,13 +40,7 @@ export default function RouteAccessError({
               {primaryActionLabel}
               <FiArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
-            <Link
-              className="inline-flex items-center justify-center gap-2 rounded-[8px] border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-600 transition hover:bg-[#F8FAFC] hover:text-[#0F172A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2"
-              to="/login"
-            >
-              Back to login
-              <FiLogIn aria-hidden="true" className="h-4 w-4" />
-            </Link>
+
           </div>
         </div>
       </section>

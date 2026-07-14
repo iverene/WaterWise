@@ -23,7 +23,7 @@ const roles = [
     label: "Consumer",
     eyebrow: "Community Portal",
     Icon: FiDroplet,
-    route: "/consumer/profile-details",
+    route: "/consumer/usage-metrics",
   },
 ];
 

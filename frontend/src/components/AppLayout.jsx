@@ -198,7 +198,7 @@ export default function AppLayout({ children }) {
         <div className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-5">
           <div>
             <p className="text-sm font-bold text-[#0F172A]">
-              Notification center
+              Notification Center
             </p>
             <p className="text-xs font-medium text-slate-500">
               {unreadCount} unread alert{unreadCount === 1 ? "" : "s"}

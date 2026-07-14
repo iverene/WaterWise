@@ -45,7 +45,7 @@ const roleAccess = {
     ],
   },
   consumer: {
-    homePath: "/consumer/profile-details",
+    homePath: "/consumer/usage-metrics",
     label: "Consumer",
     paths: [
       "/consumer",
@@ -127,7 +127,7 @@ function RoleRouteGuard({ children, requiredRole }) {
   return children;
 }
 
-function AppRoutes() {
+export function AppRoutes() {
   return (
     <Routes>
       <Route element={<Navigate replace to="/login" />} path="/" />
@@ -167,7 +167,7 @@ function AppRoutes() {
       <Route
         element={
           <RoleRouteGuard requiredRole="consumer">
-            <Navigate replace to="/consumer/profile-details" />
+            <Navigate replace to="/consumer/usage-metrics" />
           </RoleRouteGuard>
         }
         path="/consumer"
