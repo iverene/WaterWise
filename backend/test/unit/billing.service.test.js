@@ -16,7 +16,7 @@ import {
 
 import * as billingModel from "../../models/billing.model.js";
 
-vi.mock("../models/billing.model.js", () => ({
+vi.mock("../../models/billing.model.js", () => ({
   fetchBillingRecords: vi.fn(),
   fetchBillingRecordById: vi.fn(),
   insertBillingRecord: vi.fn(),

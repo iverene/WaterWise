@@ -18,7 +18,7 @@ import {
   removeMeterReading,
 } from "../../services/meterReading.service.js";
 
-vi.mock("../services/meterReading.service.js", () => ({
+vi.mock("../../services/meterReading.service.js", () => ({
   fetchMeterReadings: vi.fn(),
   fetchMeterReadingById: vi.fn(),
   addMeterReading: vi.fn(),
