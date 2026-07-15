@@ -65,4 +65,24 @@ describe("Consumer API - GET /api/profile", () => {
     });
     expect(getProfile).toHaveBeenCalledOnce();
   });
+
+  it("returns 500 when an unexpected error occurs", async () => {
+    getProfile.mockImplementationOnce((_req, res) => {
+      res.status(500).json({
+        error: "Internal Server Error",
+        message: "Unable to retrieve the consumer profile.",
+      });
+    });
+
+    const response = await request(app)
+      .get("/api/profile")
+      .set("Authorization", "Bearer valid-test-token-123");
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({
+      error: "Internal Server Error",
+      message: "Unable to retrieve the consumer profile.",
+    });
+    expect(getProfile).toHaveBeenCalledOnce();
+  });
 });
