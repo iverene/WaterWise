@@ -67,7 +67,7 @@ describe("App routing", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: /usage metrics/i }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("analytics-grid")).toBeInTheDocument();
+    expect(await screen.findByTestId("analytics-grid")).toBeInTheDocument();
     expect(route.getPathname()).toBe("/consumer/usage-metrics");
   });
 
@@ -197,7 +197,7 @@ describe("App routing", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: /usage metrics/i }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("analytics-grid")).toBeInTheDocument();
+    expect(await screen.findByTestId("analytics-grid")).toBeInTheDocument();
     expect(screen.getByTestId("trend-graph-container")).toBeInTheDocument();
   });
 });

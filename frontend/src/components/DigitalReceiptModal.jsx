@@ -15,7 +15,9 @@ function ReceiptLine({ label, testId, value }) {
 export default function DigitalReceiptModal({ isOpen, receiptData, onClose }) {
   if (!isOpen || !receiptData) return null;
 
-  const calculatedDifference = receiptData.currentReading - receiptData.previousReading;
+  const calculatedDifference = Number(
+    (receiptData.currentReading - receiptData.previousReading).toFixed(1),
+  );
 
   const handleDownload = () => {
     downloadReceiptImage({

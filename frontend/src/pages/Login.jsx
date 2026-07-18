@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FiClipboard, FiDroplet, FiShield } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { MOCK_ROLE_STORAGE_KEY } from "../config/mockAuth";
+import { login } from "../services/auth.service";
 
 const roles = [
   {
@@ -33,8 +34,9 @@ export default function Login() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const trimmedIdentifier = identifier.trim();
@@ -44,15 +46,28 @@ export default function Login() {
       return;
     }
 
-    console.info("WaterWise mock login successful", {
-      role: activeRole.id,
-      username: trimmedIdentifier,
-      destination: activeRole.route,
-    });
+    setIsSubmitting(true);
+    setMessage("");
 
-    window.localStorage.setItem(MOCK_ROLE_STORAGE_KEY, activeRole.id);
-    setMessage(`Signed in as ${activeRole.label}. Opening mock dashboard.`);
-    navigate(activeRole.route);
+    try {
+      const result = await login({ email: trimmedIdentifier, password });
+      const authenticatedRole = result.user?.role === "tenant"
+        ? "consumer"
+        : result.user?.role;
+      const destination = roles.find(({ id }) => id === authenticatedRole);
+
+      if (!destination) {
+        throw new Error("Your account role does not have a configured portal.");
+      }
+
+      window.localStorage.setItem(MOCK_ROLE_STORAGE_KEY, destination.id);
+      setMessage(`Signed in as ${destination.label}.`);
+      navigate(destination.route);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -173,9 +188,10 @@ export default function Login() {
 
                 <button
                   className="w-full rounded-[6px] bg-[#0284C7] px-5 py-3 text-base font-bold text-white transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2"
+                  disabled={isSubmitting}
                   type="submit"
                 >
-                  Sign in as {activeRole.label}
+                  {isSubmitting ? "Signing in…" : `Sign in as ${activeRole.label}`}
                 </button>
 
                 {message && (

@@ -48,6 +48,29 @@ function createPostHandler(path, resourceName) {
 }
 
 export const handlers = [
+  http.post("*/api/auth/login", async ({ request }) => {
+    const credentials = await request.json();
+
+    if (!credentials.email || !credentials.password) {
+      return HttpResponse.json(
+        { success: false, message: "Email and password are required." },
+        { status: 400 },
+      );
+    }
+
+    return HttpResponse.json({
+      success: true,
+      message: "Login successful.",
+      user: { id: 2, email: credentials.email, role: "tenant" },
+    });
+  }),
+  http.get("*/api/consumption", () =>
+    HttpResponse.json([
+      { month: "2025-01", consumption: 140 },
+      { month: "2025-02", consumption: 145 },
+      { month: "2025-03", consumption: 150 },
+    ]),
+  ),
   createPostHandler("consumers", "Consumer"),
   createPostHandler("payments", "Payment"),
   createPostHandler("events", "Event"),

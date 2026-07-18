@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import UsageMetrics from "../../pages/UsageMetrics";
 
@@ -62,5 +62,18 @@ describe("UsageMetrics inter-component page", () => {
 
     expect(screen.getByText("January 2025")).toBeInTheDocument();
     expect(screen.queryByText("January 2026")).not.toBeInTheDocument();
+  });
+
+  it("loads and maps the logged-in consumer history from the backend", async () => {
+    render(React.createElement(UsageMetrics));
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Loading your consumption history",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("stat-total")).toHaveTextContent("435");
+    });
+    expect(screen.getByText("January 2025")).toBeInTheDocument();
+    expect(screen.getAllByText("March 2025")).toHaveLength(2);
   });
 });
