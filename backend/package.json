@@ -5,8 +5,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon app.js",
-    "test": "vitest run --coverage",
-    "test:notify": "vitest run test/notificationIntegration.test.js"
+    "test": "vitest run --coverage"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.10",
