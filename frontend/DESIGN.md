@@ -1,227 +1,412 @@
-# Architectural & UI/UX Design Specification: WaterWise
+# WaterWise Frontend Design Specification
 
-## Integrated Water Distribution Management and Decision Support System for Sucol Water System
+## 1. Purpose
 
----
+WaterWise is the responsive portal for the Sucol Water System. It supports three account roles:
 
-## 1. Executive Summary & Design System
+- Administrators (Barangay Officials)
+- Meter Readers (Field Personnel)
+- Consumers (Community Portal)
 
-### 1.1 Project Overview
+The current production-facing interface is centered on the consumer experience. Admin and meter-reader routes share the application shell but currently render placeholder workspaces until their complete page modules are connected.
 
-**WaterWise** is a web-based water management and decision support platform engineered specifically for the **Sucol Water System** in Barangay Sucol, Balayan, Batangas. The platform bridges the operational gaps between water system administrators (Barangay Officials), field personnel (Meter Readers), and the community (Water Consumers). By unifying automated record management, billing pipelines, real-time consumption mapping, and AI-driven forecasting engines, WaterWise transforms manual, fragmented data flows into a central, responsive application ecosystem.
-
-### 1.2 UI/UX Design Philosophy
-
-The UI/UX strategy emphasizes a **clean, hyper-minimalist, and structural** design pattern. Navigating utility frameworks or complex data layers should require zero training.
-
-* **Cognitive Load Reduction:** Data density is carefully managed. Highly complex statistical inputs are distilled into digestible visual components to prevent data fatigue among administrative staff and consumers.
-
-
-* **Typographic Rigor:** Strict reliance on highly legible system sans-serif typefaces (`Inter`, `system-ui`) for user journeys, combined with clean monospaced font declarations (`ui-monospace`) for tabular financial statements and volumetric logs to align numeric decimals cleanly.
-
-
-* **Frictionless Layout Architecture:** Interfaces utilize sticky workspaces and contextual side-drawers instead of disruptive modal boxes, preserving layout state while scanning structural system layers.
-
-
-
-### 1.3 Design Tokens & Color Strategy
-
-To accommodate varying ambient environments—from administrative workspaces to mobile field inspections—the application employs a restricted color system built around safety, focus, and immediate fault recognition:
-
-* **Slate 900 (`#0F172A`)** — Primary Structural Typography & Frame Anchors (Maximum Contrast Base).
-* **Sky 600 (`#0284C7`)** — Interactive Control Vectors, Primary Navigation Actions, Links.
-* **Emerald 600 (`#16A34A`)** — Paid Accounts, Normal Baselines, Secure Configurations.
-* **Red 600 (`#DC2626`)** — Immediate Action Flags, Overdue Billings, Volumetric Anomalies/Leaks.
-* **Slate 50 (`#F8FAFC`)** — Content Background Canvas (Anti-Glare Baseline Layer).
+This document describes the UI that is implemented in `frontend/src`, not a speculative future interface.
 
 ---
 
-## 2. User Persona & Interface Tailoring
+## 2. Design Direction
 
-The system explicitly structures its user experience around three primary target groups, ensuring that layout complexity matches user capabilities:
+### 2.1 Mobile-first
 
-### 2.1 Barangay Officials (Administrators)
+Every interface begins with the phone layout and progressively expands at larger breakpoints. Mobile is treated as a primary environment rather than a reduced desktop view.
 
-* **UX Needs:** Fast batch actions, clear system status tracking, data filter accessibility, and scannable performance metrics.
+The design prioritizes:
 
+- One-handed navigation
+- Minimum 44-pixel touch targets
+- Short, scannable content sections
+- Cards instead of wide tables on phones
+- Drawers and bottom sheets for secondary content
+- Strong hierarchy for balances, usage, due dates, and statuses
+- Layout stability while API data is loading
 
-* **UI Delivery:** Grid-based layouts, dense data tables with clear sorting, sticky action menus, and color-coded status badges for instant triage.
+### 2.2 Visual character
 
+WaterWise uses a calm civic-utility aesthetic: deep slate surfaces establish trust, sky blue identifies water-related actions, and soft neutral backgrounds keep dense account information readable.
 
+The interface combines:
 
-### 2.2 Meter Readers (Field Personnel)
+- Rounded cards and controls
+- Restrained gradients
+- Soft elevation rather than heavy borders
+- Bold, compact headings
+- Monospaced financial and meter values
+- Status colors used only when they communicate meaning
 
-* **UX Needs:** High visibility in sunlight, large touch targets for mobile field environments, and simple form configurations.
+### 2.3 Interaction principles
 
-
-* **UI Delivery:** Simplified, large-component mobile web layouts, high-contrast text inputs, and immediate input validation feedback loops.
-
-
-
-### 2.3 Water Consumers (The Community)
-
-* **UX Needs:** At-a-glance balance viewing, straightforward payment history, and intuitive usage monitoring without technical clutter.
-
-
-* **UI Delivery:** Card-based summaries, interactive progress indicators, visual trend graphs, and a prominent notification center.
-
-
-
----
-
-## 3. UI/UX Component & Layout Wireframes
-
-### 3.1 Administrative Management Portal
-
-Designed for high-speed record modifications and account configurations, this interface focuses on tabular visibility and explicit state feedback.
-
-```
-+---------------------------------------------------------------------------------+
-| [WaterWise Admin]  Dashboard  Consumers  Readings  Billings  Events  Announcements |
-+---------------------------------------------------------------------------------+
-| ACTIVE FILTERS: [ All Puroks ▾ ] [ Current Year ▾ ]               [+ Add Consumer] |
-|                                                                                 |
-| +--------------------+ +--------------------+ +--------------------+            |
-| | Total Consumption  | | Monthly Usage      | | Active Anomalies   |            |
-| | 1,420.50 m³        | | 240.80 m³          | | 3 Accounts Flagged |            |
-| +--------------------+ +--------------------+ +--------------------+            |
-|                                                                                 |
-| CONSUMER RECORD DIRECTORY                                                       |
-| [ Search accounts...      ]                                                     |
-| Account ID | Name             | Purok    | Last Reading | Balance  | Status     |
-| ACC-0921   | Ferrer, Kyle     | Purok 1  | 184.2 m³     | ₱0.00    | [ Active ] |
-| ACC-1044   | Hernandez, J.    | Purok 3  | 210.5 m³     | ₱450.00  | [ Unpaid ] |
-| ACC-3022   | Causapin, I.     | Purok 4  | 142.0 m³     | ₱0.00    | [ Active ] |
-+---------------------------------------------------------------------------------+
-
-```
-
-#### Micro-Interactions & Behaviors:
-
-* **Inline Key Performance Indicator (KPI) Cards:** The system displays dedicated metric values in a specific visual order (Overall, Monthly, Yearly, and Per-Purok Consumption). If telemetry details are missing, cards gracefully handle the state by rendering fallback layout defaults automatically.
-
-
-* **Asynchronous Input Validation:** The `Add Consumer` slide-out menu uses real-time validation. As fields like `Account Name`, `Full Name`, `Contact Number`, `Purok`, and `Email Address` are populated, input fields change colors instantly to reflect successful formatting or structural errors (e.g., mismatched characters) before the form is submitted.
-
-
-* **Dynamic Payment Transitions:** Clicking into an `Unpaid` invoice triggers an inline payment field. Upon transaction completion, the line item performs a smooth, localized CSS state change transition from an alert red to an operational emerald green badge without requiring a hard page refresh.
-
-
+- Primary actions are visually obvious and reachable.
+- Navigation state is persistent and clearly highlighted.
+- Destructive actions use red hover and focus treatments.
+- Loading states resemble the content that will replace them.
+- Empty and error states explain what happened without blocking unrelated content.
+- Consumers can inspect account information but cannot mutate billing records.
 
 ---
 
-### 3.2 Web-Based Consumer Portal
+## 3. Design Tokens
 
-Designed to maximize transparency by structuring profile metrics, utility ledgers, and usage histories into a simple, highly scannable interface.
+### 3.1 Color palette
 
-```
-+---------------------------------------------------------------------------------+
-| [WaterWise] Profile Details   Billing Ledger   Usage Metrics   [🔔 Notifications: 2] |
-+---------------------------------------------------------------------------------+
-| WELCOME BACK, CONSUMER                                                          |
-| Account: Iverene Grace M. Causapin | Purok: Purok 4 | House No: 12-B            |
-|                                                                                 |
-| +------------------------------------+  +-------------------------------------+ |
-| | CURRENT OUTSTANDING BALANCE        |  | LATEST MONTHLY WATER CONSUMPTION    | |
-| | ₱450.00                            |  | 24.5 m³                             | |
-| | Due Date: July 25, 2026            |  | Period: June 2026                   | |
-| +------------------------------------+  +-------------------------------------+ |
-|                                                                                 |
-| CHRONOLOGICAL BILLING LEDGER                                                    |
-| Billing Cycle | Reading Date | Vol Consumed | Amount Due | Payment Status Badge |
-| June 2026     | 2026-06-30   | 24.5 m³      | ₱450.00    | [ Unpaid / Red ]     |
-| May 2026      | 2026-05-31   | 22.1 m³      | ₱390.00    | [ Paid / Emerald ]   |
-+---------------------------------------------------------------------------------+
+| Token | Value | Usage |
+|---|---:|---|
+| Slate 900 | `#0F172A` | Primary text, dark cards, structural surfaces |
+| Sky 600 | `#0284C7` | Primary actions, links, active navigation |
+| Sky 50 | `#F0F9FF` | Selected states and supporting surfaces |
+| Emerald 600 | `#16A34A` | Paid, secure, and healthy states |
+| Red 600 | `#DC2626` | Overdue, destructive, and error states |
+| Slate 50 | `#F8FAFC` | Application canvas |
+| White | `#FFFFFF` | Cards, drawers, and input surfaces |
 
-```
+The global background includes a subtle sky radial gradient over Slate 50. This provides depth without competing with data cards.
 
-#### Micro-Interactions & Behaviors:
+### 3.2 Typography
 
-* **The Notification Center Slide-Drawer:** Clicking the header navigation bell triggers an overlay panel sliding in smoothly from the right viewport margin. A numeric counter badge dynamically maps unread alerts. If the unread count reaches zero, the badge completely hides itself to clean up screen clutter.
+- Interface font: `Inter`, falling back to `system-ui` and `sans-serif`
+- Numeric font: `ui-monospace`, `Consolas`, `monospace`
+- Page headings: extra-bold with tight letter spacing
+- Section labels: small uppercase text with increased tracking
+- Body text: regular or medium weight with comfortable line height
 
+### 3.3 Shape and elevation
 
-* **Notification Stream Isolation:** Within the drawer, user alerts are neatly separated into two channels: a personal account module (e.g., bill generation, overdue notices) and community notifications (e.g., system maintenance updates). Clicking an unread alert changes its item background color from an emphasized highlight state to a neutral read state, syncing the read state to the database instantly.
-
-
-* **Digital Receipt Overlay Modal:** Selecting a row within the ledger launches a clean modal displaying a comprehensive invoice snapshot. The layout uses a strict line-item table structure showing previous vs. current dial numbers, total volumetric differences, and final totals.
-
-
+- Inputs and buttons: 12-pixel radius
+- Standard cards: 16-pixel radius
+- Major sections and modals: 24 to 28-pixel radius
+- Shadows: soft slate or sky-tinted elevation
+- Borders: low-contrast Slate 200, used primarily for separation
 
 ---
 
-### 3.3 Intelligent Decision Support Services (DSS) Dashboard
+## 4. Responsive Layout System
 
-Provides barangay officials with complex AI forecasting and anomaly metrics translated into a highly clear, non-technical control viewboard.
+The Tailwind breakpoints used by the interface are:
 
+| Breakpoint | Width | Primary behavior |
+|---|---:|---|
+| Base | Below 640px | Phone-first stacked layout |
+| `sm` | 640px | Wider cards, split fields, expanded metadata |
+| `lg` | 1024px | Desktop sidebar and multi-column shell |
+| `xl` | 1280px | Full dashboard grids and balanced content columns |
+
+### 4.1 Mobile application shell
+
+On phone-sized screens:
+
+- The header remains sticky at the top.
+- The main navigation is fixed to the bottom.
+- Navigation items use an icon-over-label pattern.
+- Content includes bottom padding so the navigation never covers it.
+- Logout is not placed in the bottom navigation.
+- The account avatar in the header opens an account menu containing user details and logout.
+
+```text
++----------------------------------+
+| WaterWise              Bell User |
++----------------------------------+
+| YOUR WATER AT A GLANCE           |
+| Usage Metrics                    |
+|                                  |
+| [ Summary cards ]                |
+| [ Consumption chart ]            |
+|                                  |
++----------------------------------+
+| Usage       Billing      Profile |
++----------------------------------+
 ```
-+---------------------------------------------------------------------------------+
-| [DSS VIEWBOARD] Filters: [ Monthly View ▾ ] [ Regional Comparison: All Puroks ▾ ] |
-+---------------------------------------------------------------------------------+
-| VOLUMETRIC METRIC ANALYSIS                                                      |
-| (Y-Axis: Volume m³ | X-Axis: Chronological Months)                              |
-|   |      __--[ AI Demand Forecast Track ]--__                                   |
-|   |    _-    \- - - - - - - - - - - - - - - -\_                                 |
-|   |  _/                                        \_                               |
-|   +-----------------------------------------------+                             |
-|                                                                                 |
-| +------------------------------------+  +-------------------------------------+ |
-| | AL-POWERED ANOMALY ALERTS          |  | SMART ADMINISTRATIVE RECOMMENDATIONS| |
-| | [⚠️ CRITICAL] Purok 3 Leak Flag    |  | • Optimize distribution rate in     | |
-| | Unusually high usage rate detected |  |   Purok 1 for next week's peak      | |
-| | on 4 consumer endpoints.           |  |   forecast period.                  | |
-| +------------------------------------+  +-------------------------------------+ |
-+---------------------------------------------------------------------------------+
 
-```
+### 4.2 Desktop application shell
 
-#### Micro-Interactions & Behaviors:
+At `lg` and above:
 
-* **Interactive Chart Interactivity:** The rolling consumption graph uses a lightweight SVG canvas displaying time-series intervals. Hovering or tapping any node on the graph triggers a micro-tooltip display that matches the cursor path, revealing the raw volumetric decimals in real time.
+- Navigation becomes a sticky left sidebar.
+- Navigation labels appear beside their icons.
+- Account identity appears at the bottom of the sidebar.
+- Logout remains in the header account menu for consistent placement.
+- Main content is constrained to a readable maximum width.
 
+### 4.3 Header
 
-* **Animated View Filtering:** Switching dashboard controls between monthly and yearly views triggers smooth transition animations within chart elements. The X and Y axes fluidly adjust their scale metrics to fit the selected timeframe without jarring screen flicker.
+The header contains:
 
+- WaterWise brand mark and name
+- Sucol Water System subtitle on wider screens
+- Active role pill on wider screens
+- Consumer notification trigger when applicable
+- Account-menu trigger for every authenticated role
 
-* **Isolated Anomaly Alerts:** System threats (e.g., leakage trends) are captured in high-visibility warning panels that display the precise area (e.g., which Purok) and the detected trigger. These alerts stand out visually but avoid obstructive pop-ups to ensure the operator's primary workspace remains fully interactive.
-
-
+The account menu displays the current account name, role, and logout action.
 
 ---
 
-## 4. Operational Ingestion & Interface States
+## 5. Role-aware Navigation
 
-To protect the user interface from dropping frame rates or freezing during intense computing procedures, data processing adheres to a clear state model.
+### 5.1 Consumer
 
-```
-[ Ingestion / Sync Entry ] ──► [ Empty / Validation State ] ──► [ Processing State ] ──► [ Rendered Canvas ]
-  Meter inputs or system         Displays clean baseline        Micro-spinners freeze     Charts and tables
-  logs arrive from API[cite: 2].     skeletons[cite: 2].                unstable fields[cite: 2].      hydrate fluidly[cite: 2].
+Consumer navigation contains:
 
-```
+- Usage Metrics
+- Billing Ledger
+- Profile Details
 
-1. **The Empty / Baseline State:** Before data ingestion occurs, views display clean, gray placeholder shapes that mimic the layout. This maintains structural structure and shows users what to expect before info populates.
+The consumer role also receives the notification trigger and notification data stream.
 
+### 5.2 Administrator
 
-2. **The Processing / Calculating State:** When the forecasting module activates the Gemini AI API, the dashboard applies partial loading states to the charts. Text fields show light, pulsing animations, and buttons are locked to prevent users from accidentally clicking twice and firing off duplicate network requests.
+Administrator navigation contains:
 
+- Dashboard
+- Consumers
+- Readings
+- Billings
+- Events
+- Announcements
 
-3. **The Hydrated / Complete State:** Once the data drops through the API channels, the placeholders cleanly swap out for live numbers, interactive graphs, and system recommendations.
+These routes currently use the shared shell with placeholder workspace content.
 
+### 5.3 Meter Reader
 
+Meter-reader navigation contains:
+
+- Readings Entry
+- Consumer Directory
+
+These routes currently use the shared shell with placeholder workspace content.
+
+### 5.4 Access boundaries
+
+Routes are guarded by the role stored for the active mock session. Opening a route for another role renders a dedicated access-error page with a clear recovery action.
 
 ---
 
-## 5. Security & Accessibility Architecture
+## 6. Login Experience
 
-### 5.1 Contrast & Accessibility Compliance
+The login page is a responsive split-panel interface.
 
-All text elements maintain contrast ratios above **4.5:1** against backgrounds, satisfying universal legibility standards. Interactive touch controls feature clear focus highlights (`:focus-visible`), ensuring the system remains completely navigable via keyboards or tap-centric mobile screens.
+### Mobile
 
-### 5.2 Database-Level Identity Isolation
+- A compact dark brand panel introduces WaterWise.
+- Role cards communicate the supported workspaces.
+- The form follows directly below the introduction.
+- Inputs include email and lock icons for faster recognition.
+- Password visibility can be toggled.
+- A security message reinforces role-based session protection.
 
-To eliminate data cross-contamination and ensure users only see relevant information, security rules are handled directly at the database boundary.
+### Desktop
 
-> 🔒 **Security Token Enforcement Protocol**
-> All portals rely on Row-Level Security (RLS) policies. Consumer portals are blocked from writing or altering data, limiting sessions to strictly read-only workflows. Any unapproved mutation request (such as a consumer session trying a `POST` or `DELETE` option against invoices) will be blocked instantly at the data layer, throwing an explicit permission error and logging the violation. This architecture protects data integrity while keeping client-side interfaces safe, smooth, and lightweight.
-> 
->
+- The brand panel and form appear side by side.
+- The brand panel uses a deep slate-to-sky gradient.
+- The form is vertically centered with a constrained readable width.
+
+### Authentication behavior
+
+The API response determines the destination:
+
+| API role | Destination |
+|---|---|
+| `admin` | `/admin/dashboard` |
+| `meter-reader` | `/meter-reader/readings-entry` |
+| `consumer` or `tenant` | `/consumer/usage-metrics` |
+
+Validation and API feedback appear inline without replacing the form.
+
+---
+
+## 7. Consumer Pages
+
+### 7.1 Usage Metrics
+
+The page presents:
+
+- Current balance
+- Total water consumption
+- Average monthly usage
+- Highest consumption month
+- Filterable consumption trend graph
+
+On mobile, summary cards form a compact two-column grid. The graph height is reduced to fit the viewport while retaining touch-friendly year filtering. On wider screens, the summary expands to four columns.
+
+### 7.2 Billing Ledger
+
+The page begins with a dark balance card containing:
+
+- Outstanding balance
+- Upcoming due date
+
+Billing records adapt by breakpoint:
+
+- Mobile: each billing cycle is a standalone card with labeled values and a full-width action.
+- Desktop: records use a conventional multi-column table.
+
+Paid records can open a digital receipt. Unpaid or overdue records keep receipt actions disabled. An official receipt action appears when receipt data is available.
+
+### 7.3 Consumer Profile
+
+The profile page contains:
+
+- Account-holder card
+- Current balance card
+- Latest monthly consumption card
+- Contact and location details
+- Latest meter snapshot
+- Last reading date
+- Consumer read-only notice
+
+Mobile layouts use two-column metric groups only when the values remain readable. Longer details remain stacked.
+
+---
+
+## 8. Notifications
+
+Notifications are currently available only to consumers.
+
+### 8.1 Trigger
+
+- The bell appears in the header for consumer sessions.
+- The badge displays the number of unread notifications.
+- The badge is removed when the unread count is zero.
+
+### 8.2 Drawer behavior
+
+The notification center always slides in from the right side of the viewport, including at the mobile breakpoint.
+
+- Mobile width: up to 92% of the viewport
+- Maximum width: 26rem
+- Height: full viewport
+- Background overlay: closes the drawer when tapped
+- Close button: remains visible in the drawer header
+
+### 8.3 Content streams
+
+Notifications are separated into:
+
+- Account bills
+- Community announcements
+
+Unread cards use a sky-highlighted treatment. Read cards use a neutral Slate 50 surface. Billing notifications can navigate directly to the billing ledger and official receipt query state.
+
+---
+
+## 9. Dialogs and Receipts
+
+Receipt experiences use responsive modal patterns:
+
+- Mobile: bottom-aligned sheet with rounded top corners
+- Desktop: centered modal with fully rounded corners
+- Header: sticky within the scrolling modal
+- Actions: download and close remain immediately accessible
+
+Financial totals use monospaced type. Official receipts separate meter identity, usage telemetry, arrears, and final bill totals into clear sections.
+
+---
+
+## 10. Loading, Empty, and Error States
+
+### 10.1 Modern loading skeletons
+
+`LoadingSkeleton.jsx` provides three page-shaped variants:
+
+- `metrics`: summary cards and chart placeholder
+- `billing`: current-billing card and billing-record placeholders
+- `profile`: profile cards and detail-grid placeholders
+
+Skeletons use a subtle horizontal shimmer rather than a generic spinner. Their shapes closely match the hydrated page, reducing layout movement when data arrives.
+
+Each skeleton:
+
+- Uses `role="status"`
+- Includes an accessible screen-reader label
+- Uses `aria-live="polite"`
+- Disables animation when `prefers-reduced-motion: reduce` is enabled
+
+### 10.2 Empty states
+
+Tables and notification streams display plain-language empty messages inside low-emphasis neutral surfaces.
+
+### 10.3 Error states
+
+- Errors use red borders and light red backgrounds.
+- Usage Metrics provides an inline retry action.
+- Errors do not remove global navigation or account controls.
+
+---
+
+## 11. PWA Experience
+
+WaterWise is configured as an installable Progressive Web App using `vite-plugin-pwa`.
+
+The PWA includes:
+
+- Generated web app manifest
+- Automatically updating service worker
+- WaterWise application icons
+- Standalone display mode
+- Theme and background colors matching the interface
+- Custom install prompt
+
+`PWAInstallPrompt.jsx` appears only after the browser emits the installability event. Dismissing the prompt hides it for the current browser session.
+
+API responses are not added to the static precache. This avoids presenting stale billing, profile, or consumption information as current data.
+
+---
+
+## 12. Accessibility Requirements
+
+The implemented interface follows these rules:
+
+- Interactive controls provide visible keyboard focus states.
+- Icon-only buttons include accessible labels.
+- Touch targets are approximately 44 pixels or larger.
+- Dialogs and status messages use appropriate ARIA roles.
+- Loading states provide screen-reader text.
+- Color is not the only source of status meaning; text labels remain visible.
+- Text maintains high contrast against light and dark surfaces.
+- Motion-sensitive users can disable skeleton shimmer through system preferences.
+
+---
+
+## 13. Component Map
+
+| Area | Primary components |
+|---|---|
+| Application shell | `AppLayout`, `Header`, `Sidebar` |
+| Authentication | `Login`, `RouteAccessError` |
+| Usage | `UsageMetrics`, `AnalyticsSummaryGrid`, `ConsumptionTrendGraph`, `CurrentBalanceCard` |
+| Billing | `BillingLedger`, `CurrentBillingCard`, `BillingHistoryTable`, `DigitalReceiptModal`, `OfficialReceiptModal` |
+| Profile | `ConsumerProfile`, `ConsumerInfoGrid`, `MonthlyConsumptionWidget`, `CurrentBalanceCard` |
+| Notifications | `NotificationBadgeTrigger`, `NotificationPage`, `NotificationCard` |
+| Loading | `LoadingSkeleton` |
+| Installation | `PWAInstallPrompt` |
+
+---
+
+## 14. Verification Expectations
+
+UI changes should preserve:
+
+- Existing `data-testid` hooks used by component and API-display tests
+- Role-based route behavior
+- Keyboard access and accessible names
+- Loading-to-content transitions
+- Mobile bottom-navigation clearance
+- Right-side notification drawer behavior
+- PWA production build generation
+
+Before delivery, run:
+
+```bash
+npm test -- --run
+npm run build
+```
+
+Focused lint should also be run against every modified frontend file.
