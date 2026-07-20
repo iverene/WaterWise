@@ -1,25 +1,34 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Consumer portal end-to-end journey", () => {
-  test("signs in, reviews billing and receipts, then explores consumption charts", async ({
+  test("signs in, reviews notifications, billing and receipts, then explores consumption charts", async ({
     page,
   }) => {
     const pageErrors = [];
     page.on("pageerror", (error) => pageErrors.push(error.message));
 
-    await page.goto("/login");
-    await expect(page.getByRole("heading", { name: "Select your role" })).toBeVisible();
+    const resetResponse = await page.request.post("/api/test/notifications/reset");
+    expect(resetResponse.status()).toBe(204);
 
-    await page.getByRole("button", { name: /^Consumer/ }).click();
+    await page.goto("/login");
+    await expect(
+      page.getByRole("heading", { name: "Sign in to your account" }),
+    ).toBeVisible();
     await page.getByLabel("Email or username").fill("tenant@gmail.com");
-    await page.getByLabel("Password").fill("tenant123");
+    const passwordInput = page.getByLabel("Password", { exact: true });
+    await passwordInput.fill("tenant123");
+    await expect(passwordInput).toHaveAttribute("type", "password");
+    await page.getByRole("button", { name: "Show password" }).click();
+    await expect(passwordInput).toHaveAttribute("type", "text");
+    await page.getByRole("button", { name: "Hide password" }).click();
+    await expect(passwordInput).toHaveAttribute("type", "password");
 
     const historyResponse = page.waitForResponse(
       (response) =>
         response.url().endsWith("/api/consumption") && response.status() === 200,
     );
 
-    await page.getByRole("button", { name: "Sign in as Consumer" }).click();
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
     await expect(page).toHaveURL(/\/consumer\/usage-metrics$/);
     await historyResponse;
 
@@ -27,6 +36,49 @@ test.describe("Consumer portal end-to-end journey", () => {
     await expect(page.getByTestId("analytics-grid")).toBeVisible();
     await expect(page.getByTestId("trend-graph-container")).toBeVisible();
     await expect(page.getByTestId("graph-node")).toHaveCount(7);
+
+    await page.getByTestId("notification-trigger").click();
+    await expect(page.getByTestId("section-bills")).toContainText("New meter reading");
+    await expect(page.getByTestId("section-announcements")).toContainText(
+      "Distribution advisory",
+    );
+
+    const billingNotification = page.getByTestId("notification-card-2026001");
+    const announcementNotification = page.getByTestId("notification-card-2026002");
+    await expect(billingNotification).toHaveAttribute("data-is-read", "false");
+    await expect(announcementNotification).toHaveAttribute("data-is-read", "false");
+    await expect(page.getByTestId("unread-badge")).toHaveText("2");
+
+    const billingReadResponse = page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/api/notifications/2026001/read") &&
+        response.request().method() === "PUT" &&
+        response.status() === 200,
+    );
+    await billingNotification.click();
+    await billingReadResponse;
+
+    await expect(page).toHaveURL(/\/consumer\/billing-ledger\?receipt=official$/);
+    await expect(
+      page.getByRole("heading", { name: "Sucol Water System Official Receipt" }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Close official receipt" }).click();
+
+    await page.getByTestId("notification-trigger").click();
+    await expect(billingNotification).toHaveAttribute("data-is-read", "true");
+    await expect(page.getByTestId("unread-badge")).toHaveText("1");
+
+    const announcementReadResponse = page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/api/notifications/2026002/read") &&
+        response.request().method() === "PUT" &&
+        response.status() === 200,
+    );
+    await announcementNotification.click();
+    await announcementReadResponse;
+    await expect(announcementNotification).toHaveAttribute("data-is-read", "true");
+    await expect(page.getByTestId("unread-badge")).toHaveCount(0);
+    await page.getByRole("button", { name: "Close notification center" }).click();
 
     await page.getByRole("link", { name: "Billing Ledger" }).click();
     await expect(page).toHaveURL(/\/consumer\/billing-ledger$/);
@@ -75,6 +127,44 @@ test.describe("Consumer portal end-to-end journey", () => {
     await yearFilter.selectOption("2026");
     await expect(page.getByTestId("graph-node")).toHaveCount(7);
     await expect(page.getByTestId("axis-month-label").last()).toHaveText("July 2026");
+
+    await page.getByRole("button", { name: "Log out" }).click();
+    await expect(page).toHaveURL(/\/login$/);
+    await page.getByLabel("Email or username").fill("tenant@gmail.com");
+    await page.getByLabel("Password", { exact: true }).fill("tenant123");
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
+    await expect(page).toHaveURL(/\/consumer\/usage-metrics$/);
+
+    await page.getByTestId("notification-trigger").click();
+    await expect(page.getByTestId("notification-card-2026001")).toHaveAttribute(
+      "data-is-read",
+      "true",
+    );
+    await expect(page.getByTestId("notification-card-2026002")).toHaveAttribute(
+      "data-is-read",
+      "true",
+    );
+    await expect(page.getByTestId("unread-badge")).toHaveCount(0);
+
+    const deleteResponse = page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/api/notifications/2026002") &&
+        response.request().method() === "DELETE" &&
+        response.status() === 200,
+    );
+    await page.getByRole("button", { name: "Delete Distribution advisory" }).click();
+    await deleteResponse;
+    await expect(page.getByTestId("notification-card-2026002")).toHaveCount(0);
+    await page.getByRole("button", { name: "Close notification center" }).click();
+
+    await page.getByRole("button", { name: "Log out" }).click();
+    await page.getByLabel("Email or username").fill("tenant@gmail.com");
+    await page.getByLabel("Password", { exact: true }).fill("tenant123");
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
+    await expect(page).toHaveURL(/\/consumer\/usage-metrics$/);
+    await page.getByTestId("notification-trigger").click();
+    await expect(page.getByTestId("notification-card-2026002")).toHaveCount(0);
+    await expect(page.getByTestId("notification-card-2026001")).toBeVisible();
     expect(pageErrors).toEqual([]);
   });
 });

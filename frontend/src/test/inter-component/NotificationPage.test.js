@@ -72,4 +72,15 @@ describe("NotificationPage inter-component page", () => {
     expect(screen.queryByText("Maintenance advisory")).not.toBeInTheDocument();
     expect(screen.getByTestId("empty-announcements")).toBeInTheDocument();
   });
+
+  it("forwards delete actions from notification cards", () => {
+    const onDelete = vi.fn();
+    render(React.createElement(NotificationPage, { notifications, onDelete }));
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Delete New billing generated" }),
+    );
+
+    expect(onDelete).toHaveBeenCalledWith("bill-1");
+  });
 });

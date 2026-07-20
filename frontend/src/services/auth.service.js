@@ -6,3 +6,11 @@ export function login(credentials) {
     body: JSON.stringify(credentials),
   });
 }
+
+export function getCurrentAccount(options) {
+  return apiRequest("/api/auth/me", options);
+}
+
+export function logout() {
+  return apiRequest("/api/auth/logout", { method: "POST" });
+}

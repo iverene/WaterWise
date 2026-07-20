@@ -14,13 +14,22 @@ const servers = [
     key: "backendPid",
     cwd: backendDirectory,
     args: ["app.js"],
-    healthUrl: "http://127.0.0.1:5000/api/consumption/ranking",
+    env: { PORT: "5001", WATERWISE_E2E: "true" },
+    healthUrl: "http://127.0.0.1:5001/api/consumption/ranking",
   },
   {
     key: "frontendPid",
     cwd: frontendDirectory,
-    args: ["node_modules/vite/bin/vite.js", "--host", "127.0.0.1"],
-    healthUrl: "http://127.0.0.1:5173",
+    args: [
+      "node_modules/vite/bin/vite.js",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "5174",
+      "--strictPort",
+    ],
+    env: { WATERWISE_API_TARGET: "http://127.0.0.1:5001" },
+    healthUrl: "http://127.0.0.1:5174",
   },
 ];
 
@@ -64,7 +73,7 @@ export async function startServers() {
       const child = spawn(process.execPath, server.args, {
         cwd: server.cwd,
         detached: process.platform !== "win32",
-        env: { ...process.env, BROWSER: "none" },
+        env: { ...process.env, ...server.env, BROWSER: "none" },
         stdio: "ignore",
         windowsHide: true,
       });

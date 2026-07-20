@@ -61,9 +61,38 @@ export const handlers = [
     return HttpResponse.json({
       success: true,
       message: "Login successful.",
-      user: { id: 2, email: credentials.email, role: "tenant" },
+      user: { id: 2, email: credentials.email, role: "consumer" },
     });
   }),
+  http.get("*/api/auth/me", () =>
+    HttpResponse.json({
+      success: true,
+      user: {
+        id: 2,
+        name: "Test Consumer",
+        email: "consumer@sucolwater.local",
+        role: "consumer",
+      },
+    }),
+  ),
+  http.get("*/api/profile", () =>
+    HttpResponse.json({
+      id: 2,
+      name: "Test Consumer",
+      email: "consumer@sucolwater.local",
+      purok_no: 3,
+      status: "active",
+      readings: [],
+      invoices: [],
+    }),
+  ),
+  http.get("*/api/billing/history", () => HttpResponse.json([])),
+  http.get("*/api/notifications", () =>
+    HttpResponse.json({
+      unreadCount: 0,
+      streams: { accountBills: [], adminAnnouncements: [] },
+    }),
+  ),
   http.get("*/api/consumption", () =>
     HttpResponse.json([
       { month: "2025-01", consumption: 140 },

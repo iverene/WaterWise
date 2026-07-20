@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiClipboard, FiDroplet, FiShield } from "react-icons/fi";
+import { FiClipboard, FiDroplet, FiEye, FiEyeOff, FiShield } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { MOCK_ROLE_STORAGE_KEY } from "../config/mockAuth";
 import { login } from "../services/auth.service";
@@ -30,9 +30,9 @@ const roles = [
 
 export default function Login() {
   const navigate = useNavigate();
-  const [activeRole, setActiveRole] = useState(roles[0]);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -109,44 +109,11 @@ export default function Login() {
                   Secure sign in
                 </p>
                 <h2 className="mt-3 text-3xl font-bold leading-tight tracking-[-0.02em] text-[#0F172A]">
-                  Select your role
+                  Sign in to your account
                 </h2>
-              </div>
-
-              <div
-                aria-label="Login role"
-                className="grid gap-2 rounded-[8px] border border-slate-200 bg-[#F8FAFC] p-2 sm:grid-cols-3"
-                role="group"
-              >
-                {roles.map((role) => {
-                  const isActive = activeRole.id === role.id;
-
-                  return (
-                    <button
-                      aria-pressed={isActive}
-                      className={[
-                        "rounded-[6px] border px-4 py-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2",
-                        isActive
-                          ? "border-[#0284C7] bg-white text-[#0F172A] shadow-sm"
-                          : "border-transparent bg-transparent text-slate-600 hover:border-slate-200 hover:bg-white",
-                      ].join(" ")}
-                      key={role.id}
-                      onClick={() => {
-                        setActiveRole(role);
-                        setMessage("");
-                      }}
-                      type="button"
-                    >
-                      <span className="flex items-center gap-2 text-sm font-bold">
-                        <role.Icon aria-hidden="true" className="h-4 w-4" />
-                        <span>{role.label}</span>
-                      </span>
-                      <span className="mt-1 block text-xs font-medium">
-                        {role.eyebrow}
-                      </span>
-                    </button>
-                  );
-                })}
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  Your account permissions determine which portal opens after sign in.
+                </p>
               </div>
 
               <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
@@ -175,15 +142,30 @@ export default function Login() {
                   >
                     Password
                   </label>
-                  <input
-                    autoComplete="current-password"
-                    className="mt-2 w-full rounded-[6px] border border-slate-300 bg-white px-4 py-3 text-base text-[#0F172A] outline-none transition placeholder:text-slate-400 focus:border-[#0284C7] focus:ring-2 focus:ring-[#0284C7]/20"
-                    id="login-password"
-                    onChange={(event) => setPassword(event.target.value)}
-                    placeholder="Enter password"
-                    type="password"
-                    value={password}
-                  />
+                  <div className="relative mt-2">
+                    <input
+                      autoComplete="current-password"
+                      className="w-full rounded-[6px] border border-slate-300 bg-white py-3 pl-4 pr-12 text-base text-[#0F172A] outline-none transition placeholder:text-slate-400 focus:border-[#0284C7] focus:ring-2 focus:ring-[#0284C7]/20"
+                      id="login-password"
+                      onChange={(event) => setPassword(event.target.value)}
+                      placeholder="Enter password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                    />
+                    <button
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-pressed={showPassword}
+                      className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-[6px] text-slate-500 transition hover:text-[#0284C7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0284C7]"
+                      onClick={() => setShowPassword((visible) => !visible)}
+                      type="button"
+                    >
+                      {showPassword ? (
+                        <FiEyeOff aria-hidden="true" className="h-5 w-5" />
+                      ) : (
+                        <FiEye aria-hidden="true" className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <button
@@ -191,7 +173,7 @@ export default function Login() {
                   disabled={isSubmitting}
                   type="submit"
                 >
-                  {isSubmitting ? "Signing in…" : `Sign in as ${activeRole.label}`}
+                  {isSubmitting ? "Signing in…" : "Sign in"}
                 </button>
 
                 {message && (

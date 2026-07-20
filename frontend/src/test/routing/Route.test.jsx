@@ -35,7 +35,7 @@ describe("App routing", () => {
     const route = renderRoute("/");
 
     expect(
-      await screen.findByRole("heading", { name: /select your role/i }),
+      await screen.findByRole("heading", { name: /sign in to your account/i }),
     ).toBeInTheDocument();
 
     await waitFor(() => {
@@ -47,7 +47,7 @@ describe("App routing", () => {
     const route = renderRoute("/missing-page");
 
     expect(
-      await screen.findByRole("heading", { name: /select your role/i }),
+      await screen.findByRole("heading", { name: /sign in to your account/i }),
     ).toBeInTheDocument();
 
     await waitFor(() => {
@@ -59,10 +59,9 @@ describe("App routing", () => {
     const user = userEvent.setup();
     const route = renderRoute("/login");
 
-    await user.click(screen.getByRole("button", { name: /consumer/i }));
     await user.type(screen.getByLabelText(/email or username/i), "consumer@sucolwater.local");
-    await user.type(screen.getByLabelText(/password/i), "password");
-    await user.click(screen.getByRole("button", { name: /sign in as consumer/i }));
+    await user.type(screen.getByLabelText(/^password$/i), "password");
+    await user.click(screen.getByRole("button", { name: /^sign in$/i }));
 
     expect(
       await screen.findByRole("heading", { level: 1, name: /usage metrics/i }),
@@ -78,6 +77,7 @@ describe("App routing", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: /dashboard/i }),
     ).toBeInTheDocument();
+    expect(screen.queryByTestId("notification-trigger")).not.toBeInTheDocument();
     await waitFor(() => {
       expect(adminRoute.getPathname()).toBe("/admin/dashboard");
     });
@@ -89,6 +89,7 @@ describe("App routing", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: /readings entry/i }),
     ).toBeInTheDocument();
+    expect(screen.queryByTestId("notification-trigger")).not.toBeInTheDocument();
     await waitFor(() => {
       expect(meterReaderRoute.getPathname()).toBe("/meter-reader/readings-entry");
     });
@@ -100,6 +101,7 @@ describe("App routing", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: /usage metrics/i }),
     ).toBeInTheDocument();
+    expect(await screen.findByTestId("notification-trigger")).toBeInTheDocument();
     await waitFor(() => {
       expect(consumerRoute.getPathname()).toBe("/consumer/usage-metrics");
     });
@@ -186,8 +188,8 @@ describe("App routing", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: /billing ledger/i }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("current-billing-card")).toBeInTheDocument();
-    expect(screen.getByTestId("billing-history-table")).toBeInTheDocument();
+    expect(await screen.findByTestId("current-billing-card")).toBeInTheDocument();
+    expect(await screen.findByTestId("billing-history-table")).toBeInTheDocument();
   });
 
   it("renders the consumer usage metrics route", async () => {

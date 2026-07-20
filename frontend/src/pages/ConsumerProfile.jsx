@@ -1,5 +1,5 @@
+import { useEffect, useState } from "react";
 import {
-  FiCheckCircle,
   FiDroplet,
   FiFileText,
   FiHome,
@@ -10,24 +10,7 @@ import {
 import ConsumerInfoGrid from "../components/ConsumerInfoGrid";
 import CurrentBalanceCard from "../components/CurrentBalanceCard";
 import MonthlyConsumptionWidget from "../components/MonthlyConsumptionWidget";
-
-const fallbackConsumer = {
-  accountId: "ACC-3022",
-  name: "Iverene Grace M. Causapin",
-  purok: "Purok 4",
-  houseNumber: "12-B",
-  email: "iverene.causapin@sucolwater.local",
-  contactNumber: "0917 000 1212",
-  meterNumber: "SWS-MTR-0412",
-  status: "Active",
-  activeAmountDue: 450,
-  dueDate: "July 25, 2026",
-  latestMonth: "June 2026",
-  volumetricUsage: 24.5,
-  previousReading: 184.2,
-  currentReading: 208.7,
-  lastReadingDate: "2026-06-30",
-};
+import { fetchConsumerProfile } from "../services/consumerPortal.service";
 
 function DetailItem({ Icon, label, value }) {
   return (
@@ -45,7 +28,34 @@ function DetailItem({ Icon, label, value }) {
   );
 }
 
-export default function ConsumerProfile({ consumer = fallbackConsumer }) {
+export default function ConsumerProfile({ consumer: consumerProp }) {
+  const usesApi = consumerProp === undefined;
+  const [loadedConsumer, setLoadedConsumer] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!usesApi) return undefined;
+
+    const controller = new AbortController();
+    fetchConsumerProfile({ signal: controller.signal })
+      .then(setLoadedConsumer)
+      .catch((requestError) => {
+        if (requestError.name !== "AbortError") setError(requestError.message);
+      });
+
+    return () => controller.abort();
+  }, [usesApi]);
+
+  const consumer = usesApi ? loadedConsumer : consumerProp;
+
+  if (error) {
+    return <div className="rounded-[8px] border border-red-200 bg-red-50 p-4 text-red-800" role="alert">{error}</div>;
+  }
+
+  if (!consumer) {
+    return <div className="rounded-[8px] border border-sky-100 bg-sky-50 p-4 text-sky-800" role="status">Loading consumer profile…</div>;
+  }
+
   const consumptionDifference = Number(
     (consumer.currentReading - consumer.previousReading).toFixed(1),
   );

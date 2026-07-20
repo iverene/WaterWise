@@ -1,7 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { FiBookOpen, FiDroplet, FiFileText, FiGrid, FiMap, FiMessageSquare, FiUsers, FiX } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router";
 import { MOCK_ROLE_STORAGE_KEY } from "../config/mockAuth";
+import { getCurrentAccount, logout } from "../services/auth.service";
+import {
+  deleteNotification,
+  fetchNotifications,
+  markNotificationRead,
+} from "../services/consumerPortal.service";
 import Header from "./Header";
 import NotificationBadgeTrigger from "./NotificationBadgeTrigger";
 import NotificationPage from "../pages/NotificationPage";
@@ -48,24 +54,6 @@ const ROLE_CONFIG = {
   },
 };
 
-const notificationSeeds = [
-  {
-    id: "notif-bill-1",
-    category: "bill",
-    title: "New billing generated",
-    message: "June 2026 billing is ready. Open the receipt preview.",
-    isRead: false,
-    actionPath: "/consumer/billing-ledger?receipt=official",
-  },
-  {
-    id: "notif-admin-1",
-    category: "announcement",
-    title: "Distribution advisory",
-    message: "Purok 3 maintenance window is scheduled for field validation.",
-    isRead: false,
-  },
-];
-
 function getRoleFromPath(pathname) {
   return Object.entries(ROLE_CONFIG).find(([, config]) =>
     pathname.startsWith(config.basePath),
@@ -95,44 +83,53 @@ export default function AppLayout({ children }) {
   const pathRole = getRoleFromPath(location.pathname);
   const [mockRole, setMockRole] = useState(getStoredRole);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const [notifications, setNotifications] = useState(notificationSeeds);
+  const [notifications, setNotifications] = useState([]);
+  const [accountName, setAccountName] = useState("");
   const activeRole = pathRole ?? mockRole;
   const activeRoleConfig = ROLE_CONFIG[activeRole];
 
-  const roleOptions = useMemo(
-    () =>
-      Object.entries(ROLE_CONFIG).map(([value, config]) => ({
-        label: config.label,
-        value,
-      })),
-    [],
-  );
-
   const unreadCount = notifications.filter((item) => !item.isRead).length;
 
-  const handleRoleChange = (nextRole) => {
-    if (!ROLE_CONFIG[nextRole]) {
-      return;
+  useEffect(() => {
+    const controller = new AbortController();
+
+    getCurrentAccount({ signal: controller.signal })
+      .then(({ user }) => setAccountName(user?.name ?? user?.email ?? ""))
+      .catch(() => setAccountName(""));
+
+    if (activeRole === "consumer") {
+      fetchNotifications({ signal: controller.signal })
+        .then(setNotifications)
+        .catch(() => setNotifications([]));
+    } else {
+      setNotifications([]);
     }
 
-    window.localStorage.setItem(MOCK_ROLE_STORAGE_KEY, nextRole);
-    setMockRole(nextRole);
-    navigate(ROLE_CONFIG[nextRole].homePath);
-  };
+    return () => controller.abort();
+  }, [activeRole]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
     window.localStorage.removeItem(MOCK_ROLE_STORAGE_KEY);
     setMockRole("admin");
     setIsNotificationOpen(false);
     navigate("/login");
+    }
   };
 
-  const handleMarkNotificationAsRead = (notificationId) => {
-    setNotifications((currentNotifications) =>
-      currentNotifications.map((item) =>
-        item.id === notificationId ? { ...item, isRead: true } : item,
-      ),
-    );
+  const handleMarkNotificationAsRead = async (notificationId) => {
+    try {
+      await markNotificationRead(notificationId);
+      setNotifications((currentNotifications) =>
+        currentNotifications.map((item) =>
+          item.id === notificationId ? { ...item, isRead: true } : item,
+        ),
+      );
+    } catch {
+      // Keep the unread state when the backend update fails.
+    }
   };
 
   const handleNotificationClick = (notification) => {
@@ -142,18 +139,27 @@ export default function AppLayout({ children }) {
     }
   };
 
+  const handleDeleteNotification = async (notificationId) => {
+    try {
+      await deleteNotification(notificationId);
+      setNotifications((currentNotifications) =>
+        currentNotifications.filter((item) => item.id !== notificationId),
+      );
+    } catch {
+      // Keep the notification visible when the backend dismissal fails.
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-[Inter,system-ui,sans-serif] text-[#0F172A]">
       <Header
         activeRole={activeRole}
-        notificationSlot={
+        notificationSlot={activeRole === "consumer" ? (
           <NotificationBadgeTrigger
             onToggleHub={() => setIsNotificationOpen((isOpen) => !isOpen)}
             unreadCount={unreadCount}
           />
-        }
-        onRoleChange={handleRoleChange}
-        roles={roleOptions}
+        ) : null}
         title="WaterWise"
       />
 
@@ -162,7 +168,7 @@ export default function AppLayout({ children }) {
           activeRoleLabel={activeRoleConfig.label}
           items={activeRoleConfig.links}
           onLogout={handleLogout}
-          userName={activeRoleConfig.userName}
+          userName={accountName || activeRoleConfig.userName}
         />
 
         <main className="min-w-0 flex-1">
@@ -216,6 +222,7 @@ export default function AppLayout({ children }) {
 
         <NotificationPage
           notifications={notifications}
+          onDelete={handleDeleteNotification}
           onNotificationClick={handleNotificationClick}
           onMarkAsRead={handleMarkNotificationAsRead}
         />

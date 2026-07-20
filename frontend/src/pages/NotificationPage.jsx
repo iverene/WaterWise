@@ -2,6 +2,7 @@ import NotificationCard from '../components/NotificationCard';
 
 export default function NotificationPage({
   notifications = [],
+  onDelete,
   onMarkAsRead,
   onNotificationClick,
 }) {
@@ -24,6 +25,7 @@ export default function NotificationPage({
               <NotificationCard 
                 key={bill.id} 
                 item={bill} 
+                onDelete={onDelete}
                 onMarkAsRead={onMarkAsRead} 
                 onNotificationClick={onNotificationClick}
               />
@@ -40,6 +42,7 @@ export default function NotificationPage({
               <NotificationCard 
                 key={announcement.id} 
                 item={announcement} 
+                onDelete={onDelete}
                 onMarkAsRead={onMarkAsRead} 
                 onNotificationClick={onNotificationClick}
               />

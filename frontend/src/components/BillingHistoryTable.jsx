@@ -24,6 +24,17 @@ export default function BillingHistoryTable({ historyData = [], onSelectReceipt 
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
+          {historyData.length === 0 && (
+            <tr>
+              <td
+                className="px-4 py-10 text-center text-sm font-medium text-slate-500"
+                colSpan={6}
+                data-testid="billing-history-empty-state"
+              >
+                There are no billing records yet.
+              </td>
+            </tr>
+          )}
           {historyData.map((row) => {
             const canViewReceipt = row.status === "Paid";
 
