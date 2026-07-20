@@ -44,7 +44,7 @@ function UsageTooltip({ active, payload, label }) {
   const record = payload[0].payload;
 
   return (
-    <div className="rounded-[8px] border border-slate-200 bg-white p-3 shadow-[0_18px_48px_rgba(15,23,42,0.12)]">
+    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-[0_18px_48px_rgba(15,23,42,0.12)]">
       <p className="text-sm font-bold text-[#0F172A]">{label}</p>
       <p className="mt-1 font-mono text-sm text-[#0284C7]">
         {record.consumption} m³ consumed
@@ -80,33 +80,33 @@ export default function ConsumptionTrendGraph({ trendData = [] }) {
 
   return (
     <section
-      className="rounded-[8px] border border-slate-200 bg-white p-5 shadow-[0_18px_56px_rgba(15,23,42,0.05)]"
+      className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-[0_18px_56px_rgba(15,23,42,0.06)] sm:p-6"
       data-testid="trend-graph-container"
     >
-      <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div className="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0284C7]">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#0284C7]">
             Usage trend
           </p>
-          <h3 className="mt-2 text-xl font-bold tracking-[-0.02em] text-[#0F172A]">
-            Consumption Trend Graph
+          <h3 className="mt-1.5 text-xl font-extrabold tracking-[-0.03em] text-[#0F172A] sm:text-2xl">
+            Monthly consumption
           </h3>
         </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="flex items-center justify-between gap-3 sm:justify-end">
           <div
-            className="font-mono text-sm font-bold text-slate-600"
+            className="hidden font-mono text-sm font-bold text-slate-500 sm:block"
             data-testid="y-axis-labels"
           >
             <span>Volume (m³)</span>
           </div>
 
           <label className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            <span className="text-xs font-semibold text-slate-500">
               Year
             </span>
             <select
-              className="h-10 rounded-[8px] border border-slate-200 bg-[#F8FAFC] px-3 text-sm font-bold text-[#0F172A] outline-none transition focus:border-[#0284C7] focus:ring-2 focus:ring-[#0284C7]/20"
+              className="h-11 min-w-24 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-bold text-[#0F172A] outline-none transition focus:border-[#0284C7] focus:ring-2 focus:ring-[#0284C7]/20"
               data-testid="year-filter"
               onChange={(event) => setSelectedYear(event.target.value)}
               value={activeYear}
@@ -125,9 +125,9 @@ export default function ConsumptionTrendGraph({ trendData = [] }) {
         </div>
       </div>
 
-      <div className="h-80" data-testid="graph-plot-points">
+      <div className="h-64 sm:h-80" data-testid="graph-plot-points">
         <ResponsiveContainer height="100%" width="100%">
-          <LineChart data={filteredData} margin={{ bottom: 10, left: 0, right: 16, top: 16 }}>
+          <LineChart data={filteredData} margin={{ bottom: 8, left: -20, right: 8, top: 16 }}>
             <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="month"

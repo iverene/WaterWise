@@ -1,4 +1,4 @@
-import { FiLogOut, FiUser } from "react-icons/fi";
+import { FiUser } from "react-icons/fi";
 import { NavLink } from "react-router";
 
 function getItemLabel(item) {
@@ -8,26 +8,25 @@ function getItemLabel(item) {
 export default function Sidebar({
   activeRoleLabel,
   items = [],
-  onLogout,
   userName = "WaterWise User",
 }) {
   return (
-    <aside className="border-b border-slate-200 bg-white lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:w-72 lg:shrink-0 lg:border-b-0 lg:border-r">
-      <div className="flex h-full flex-col p-4 sm:p-6">
-        <nav aria-label={`${activeRoleLabel ?? "WaterWise"} navigation`}>
-          <ul className="grid gap-1">
+    <aside className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/80 bg-white/95 shadow-[0_-12px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl lg:sticky lg:top-[72px] lg:h-[calc(100vh-72px)] lg:w-64 lg:shrink-0 lg:border-r lg:border-t-0 lg:shadow-none xl:w-72">
+      <div className="flex h-full items-center gap-2 px-2 py-2 lg:flex-col lg:items-stretch lg:p-5">
+        <nav className="min-w-0 flex-1 overflow-x-auto lg:overflow-visible" aria-label={`${activeRoleLabel ?? "WaterWise"} navigation`}>
+          <ul className="flex min-w-max items-stretch gap-1 lg:grid lg:min-w-0 lg:gap-1.5">
             {items.map((item) => {
               const label = getItemLabel(item);
               const Icon = typeof item === "string" ? null : item.Icon;
 
               return (
-                <li key={label}>
+                <li className="min-w-[76px] flex-1 lg:min-w-0" key={label}>
                   {typeof item === "string" || !item.path ? (
-                    <span className="flex min-h-11 items-center gap-3 rounded-[8px] px-3 py-2 text-sm font-semibold text-slate-600">
+                    <span className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-2 py-1 text-center text-[11px] font-bold text-slate-500 lg:min-h-12 lg:flex-row lg:justify-start lg:gap-3 lg:px-3 lg:py-2 lg:text-left lg:text-sm">
                       {Icon && (
                         <Icon
                           aria-hidden="true"
-                          className="h-4 w-4 shrink-0 text-[#0284C7]"
+                          className="h-5 w-5 shrink-0 text-[#0284C7] lg:h-4 lg:w-4"
                         />
                       )}
                       {label}
@@ -36,10 +35,10 @@ export default function Sidebar({
                     <NavLink
                       className={({ isActive }) =>
                         [
-                          "flex min-h-11 items-center gap-3 rounded-[8px] px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2",
+                          "flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-2 py-1 text-center text-[11px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2 lg:min-h-12 lg:flex-row lg:justify-start lg:gap-3 lg:px-3 lg:py-2 lg:text-left lg:text-sm",
                           isActive
-                            ? "bg-[#0F172A] text-white"
-                            : "text-slate-600 hover:bg-[#F8FAFC] hover:text-[#0F172A]",
+                            ? "bg-sky-50 text-[#0284C7] lg:bg-[#0F172A] lg:text-white"
+                            : "text-slate-500 hover:bg-slate-50 hover:text-[#0F172A]",
                         ].join(" ")
                       }
                       to={item.path}
@@ -47,7 +46,7 @@ export default function Sidebar({
                       {Icon && (
                         <Icon
                           aria-hidden="true"
-                          className="h-4 w-4 shrink-0"
+                          className="h-5 w-5 shrink-0 lg:h-4 lg:w-4"
                         />
                       )}
                       <span>{label}</span>
@@ -59,12 +58,12 @@ export default function Sidebar({
           </ul>
         </nav>
 
-        <div className="mt-6 border-t border-slate-200 pt-4 lg:mt-auto">
-          <div className="flex items-center gap-3 rounded-[8px] bg-[#F8FAFC] p-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] bg-white text-[#0284C7]">
+        <div className="hidden shrink-0 lg:mt-auto lg:block lg:w-full lg:border-t lg:border-slate-200 lg:pt-4">
+          <div className="flex items-center gap-3 rounded-xl lg:bg-slate-50 lg:p-3">
+            <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#0284C7] shadow-sm lg:flex">
               <FiUser aria-hidden="true" className="h-4 w-4" />
             </div>
-            <div className="min-w-0">
+            <div className="hidden min-w-0 lg:block">
               <p className="truncate text-sm font-bold tracking-[-0.02em] text-[#0F172A]">
                 {userName}
               </p>
@@ -74,14 +73,6 @@ export default function Sidebar({
                 </p>
               )}
             </div>
-            <button
-              aria-label="Log out"
-              className="ml-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border border-slate-200 bg-white text-slate-500 transition hover:border-[#DC2626]/30 hover:bg-red-50 hover:text-[#DC2626] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2"
-              onClick={onLogout}
-              type="button"
-            >
-              <FiLogOut aria-hidden="true" className="h-4 w-4" />
-            </button>
           </div>
         </div>
       </div>

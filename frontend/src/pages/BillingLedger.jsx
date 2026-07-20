@@ -4,6 +4,7 @@ import BillingHistoryTable from "../components/BillingHistoryTable";
 import CurrentBillingCard from "../components/CurrentBillingCard";
 import DigitalReceiptModal from "../components/DigitalReceiptModal";
 import OfficialReceiptModal from "../components/OfficialReceiptModal";
+import LoadingSkeleton from "../components/LoadingSkeleton";
 import { fetchBillingLedger } from "../services/consumerPortal.service";
 
 export default function BillingLedger({
@@ -42,7 +43,7 @@ export default function BillingLedger({
   }
 
   if (!ledgerAccount) {
-    return <div className="rounded-[8px] border border-sky-100 bg-sky-50 p-4 text-sky-800" role="status">Loading billing ledger…</div>;
+    return <LoadingSkeleton label="Loading billing ledger" variant="billing" />;
   }
 
   const handleSelectReceipt = (receipt) => {
@@ -61,25 +62,25 @@ export default function BillingLedger({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
 
       <CurrentBillingCard
         dueDate={ledgerAccount.dueDate}
         outstandingBalance={ledgerAccount.outstandingBalance}
       />
 
-      <section className="rounded-[8px] border border-slate-200 bg-white p-5 shadow-[0_18px_56px_rgba(15,23,42,0.05)]">
+      <section className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-[0_18px_56px_rgba(15,23,42,0.06)] sm:p-6">
         <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0284C7]">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#0284C7]">
               Billing records
             </p>
-            <h3 className="mt-2 text-xl font-bold tracking-[-0.02em] text-[#0F172A]">
+            <h3 className="mt-1.5 text-xl font-extrabold tracking-[-0.03em] text-[#0F172A] sm:text-2xl">
               Billing History
             </h3>
           </div>
           {officialReceipt && <button
-            className="w-full rounded-[8px] bg-[#0284C7] px-4 py-3 text-sm font-bold text-white transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2 sm:w-auto"
+            className="min-h-11 w-full rounded-xl bg-sky-50 px-4 py-3 text-sm font-bold text-[#0284C7] transition hover:bg-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2 sm:w-auto"
             onClick={openOfficialReceipt}
             type="button"
           >

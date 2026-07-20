@@ -51,26 +51,26 @@ export default function OfficialReceiptModal({ isOpen, receiptData, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F172A]/35 px-4 py-6"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-[#0F172A]/45 sm:items-center sm:px-4 sm:py-6"
       data-testid="receipt-modal"
       onClick={onClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-[8px] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.18)]"
+        className="max-h-[92dvh] w-full max-w-3xl overflow-y-auto rounded-t-[28px] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.22)] sm:rounded-3xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-5">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-slate-200 bg-white/95 p-4 backdrop-blur sm:p-5">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0284C7]">
               Sucol Water System
             </p>
-            <h1 className="mt-2 text-2xl font-bold tracking-[-0.02em] text-[#0F172A]">
+            <h1 className="mt-1 text-xl font-extrabold tracking-[-0.03em] text-[#0F172A] sm:text-2xl">
               Sucol Water System Official Receipt
             </h1>
           </div>
           <div className="flex gap-2">
             <button
-              className="flex h-10 items-center gap-2 rounded-[8px] border border-slate-200 bg-white px-3 text-sm font-bold text-[#0284C7] transition hover:bg-[#F8FAFC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2"
+              className="flex h-11 items-center gap-2 rounded-xl bg-sky-50 px-3 text-sm font-bold text-[#0284C7] transition hover:bg-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7]"
               data-testid="download-official-receipt-image"
               onClick={handleDownload}
               type="button"
@@ -80,7 +80,7 @@ export default function OfficialReceiptModal({ isOpen, receiptData, onClose }) {
             </button>
             <button
               aria-label="Close official receipt"
-              className="flex h-10 w-10 items-center justify-center rounded-[8px] border border-slate-200 bg-white text-[#0284C7] transition hover:bg-[#F8FAFC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2"
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7]"
               data-testid="close-modal"
               onClick={onClose}
               type="button"
@@ -90,8 +90,8 @@ export default function OfficialReceiptModal({ isOpen, receiptData, onClose }) {
           </div>
         </div>
 
-        <div className="grid gap-5 p-5 lg:grid-cols-[0.8fr_1.2fr]">
-          <div className="rounded-[8px] bg-[#F8FAFC] p-4">
+        <div className="grid gap-4 p-4 sm:p-6 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="rounded-2xl bg-sky-50 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
               Meter name
             </p>
@@ -118,8 +118,8 @@ export default function OfficialReceiptModal({ isOpen, receiptData, onClose }) {
           </div>
         </div>
 
-        <div className="px-5 pb-5">
-          <div className="grid gap-3 rounded-[8px] bg-[#F8FAFC] p-4 sm:grid-cols-3" data-testid="arrears-matrix">
+        <div className="px-4 pb-5 sm:px-6 sm:pb-6">
+          <div className="grid gap-3 rounded-2xl bg-slate-50 p-4 sm:grid-cols-3" data-testid="arrears-matrix">
             <span className="font-mono text-sm font-bold text-[#0F172A]" data-testid="arrears-30">
               Over 30 Days: ₱{arrears30Days.toFixed(2)}
             </span>
@@ -131,9 +131,9 @@ export default function OfficialReceiptModal({ isOpen, receiptData, onClose }) {
             </span>
           </div>
 
-          <div className="mt-4 flex items-center justify-between rounded-[8px] border border-slate-200 p-4">
-            <strong className="text-sm font-bold text-[#0F172A]">Total Bill Sum:</strong>
-            <span className="font-mono text-xl font-bold text-[#DC2626]" data-testid="receipt-final-total">
+          <div className="mt-4 flex items-center justify-between rounded-2xl bg-[#0F172A] p-4 text-white">
+            <strong className="text-sm font-bold text-white">Total Bill Sum:</strong>
+            <span className="font-mono text-xl font-bold text-sky-200" data-testid="receipt-final-total">
               ₱{finalTotalBill.toFixed(2)}
             </span>
           </div>

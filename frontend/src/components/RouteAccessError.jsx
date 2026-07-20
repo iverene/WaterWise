@@ -1,4 +1,4 @@
-import { FiAlertTriangle, FiArrowRight, FiLogIn } from "react-icons/fi";
+import { FiAlertTriangle, FiArrowRight } from "react-icons/fi";
 import { Link } from "react-router";
 
 export default function RouteAccessError({
@@ -10,20 +10,20 @@ export default function RouteAccessError({
   const isSignedIn = currentRoleLabel !== "No active mock user";
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] px-5 py-8 font-[Inter,system-ui,sans-serif] text-[#0F172A] sm:px-8">
+    <main className="min-h-screen bg-transparent px-4 py-6 font-[Inter,system-ui,sans-serif] text-[#0F172A] sm:px-8">
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-3xl items-center justify-center">
         <div
-          className="w-full rounded-[8px] border border-slate-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] sm:p-8"
+          className="w-full rounded-[28px] border border-slate-200/80 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.1)] sm:p-10"
           role="alert"
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-[8px] bg-red-50 text-[#DC2626]">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-[#DC2626]">
             <FiAlertTriangle aria-hidden="true" className="h-6 w-6" />
           </div>
 
           <p className="mt-6 text-sm font-semibold uppercase tracking-[0.12em] text-[#0284C7]">
             Route access restricted
           </p>
-          <h1 className="mt-3 text-3xl font-bold leading-tight tracking-[-0.02em] text-[#0F172A]">
+          <h1 className="mt-3 text-3xl font-extrabold leading-tight tracking-[-0.04em] text-[#0F172A] sm:text-4xl">
             This page is not available for your role
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
@@ -34,7 +34,7 @@ export default function RouteAccessError({
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
-              className="inline-flex items-center justify-center gap-2 rounded-[8px] bg-[#0284C7] px-5 py-3 text-sm font-bold text-white transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#0284C7] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-sky-200 transition hover:bg-sky-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:ring-offset-2"
               to={allowedPath}
             >
               {primaryActionLabel}

@@ -30,7 +30,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background: var(--waterwise-slate-50);
+  background:
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.08), transparent 28rem),
+    var(--waterwise-slate-50);
   font-family: var(--font-sans);
 }
 
@@ -43,4 +45,34 @@ select {
 
 #root {
   min-height: 100vh;
+}
+
+::selection {
+  color: #ffffff;
+  background: #0284c7;
+}
+
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: none;
+  }
+}
+
+@keyframes waterwise-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.waterwise-skeleton-shimmer {
+  animation: waterwise-skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .waterwise-skeleton-shimmer {
+    animation: none;
+  }
 }

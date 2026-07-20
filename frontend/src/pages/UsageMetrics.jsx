@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import AnalyticsSummaryGrid from "../components/AnalyticsSummaryGrid";
 import ConsumptionTrendGraph from "../components/ConsumptionTrendGraph";
+import LoadingSkeleton from "../components/LoadingSkeleton";
 import { fetchConsumptionHistory } from "../services/consumptionHistory.service";
 
 export default function UsageMetrics({
@@ -45,20 +46,20 @@ export default function UsageMetrics({
 
   const displayedHistory = usesApi ? history : usageHistory;
 
-  return (
-    <div className="space-y-6">
-      {isLoading && (
-        <div
-          className="rounded-[8px] border border-sky-100 bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-800"
-          role="status"
-        >
-          Loading your consumption history…
-        </div>
-      )}
+  if (isLoading) {
+    return (
+      <LoadingSkeleton
+        label="Loading your consumption history"
+        variant="metrics"
+      />
+    );
+  }
 
+  return (
+    <div className="space-y-5 sm:space-y-6">
       {error && (
         <div
-          className="flex flex-col gap-3 rounded-[8px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
           <span>{error}</span>

@@ -102,7 +102,7 @@ export default function AppLayout({ children }) {
         .then(setNotifications)
         .catch(() => setNotifications([]));
     } else {
-      setNotifications([]);
+      queueMicrotask(() => setNotifications([]));
     }
 
     return () => controller.abort();
@@ -151,31 +151,33 @@ export default function AppLayout({ children }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-[Inter,system-ui,sans-serif] text-[#0F172A]">
+    <div className="min-h-screen bg-transparent font-[Inter,system-ui,sans-serif] text-[#0F172A]">
       <Header
+        accountName={accountName || activeRoleConfig.userName}
         activeRole={activeRole}
+        activeRoleLabel={activeRoleConfig.label}
         notificationSlot={activeRole === "consumer" ? (
           <NotificationBadgeTrigger
             onToggleHub={() => setIsNotificationOpen((isOpen) => !isOpen)}
             unreadCount={unreadCount}
           />
         ) : null}
+        onLogout={handleLogout}
         title="WaterWise"
       />
 
-      <div className="lg:flex">
+      <div className="mx-auto max-w-[1600px] lg:flex">
         <Sidebar
           activeRoleLabel={activeRoleConfig.label}
           items={activeRoleConfig.links}
-          onLogout={handleLogout}
           userName={accountName || activeRoleConfig.userName}
         />
 
-        <main className="min-w-0 flex-1">
-          <div className="h-full overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <main className="min-w-0 flex-1 pb-24 lg:pb-0">
+          <div className="h-full px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-8">
             <div className="mx-auto max-w-7xl">
-              <div className="mb-6">
-                <h1 className="mt-2 text-3xl font-bold leading-tight tracking-[-0.02em] text-[#0F172A]">
+              <div className="mb-5 sm:mb-7">
+                <h1 className="mt-1.5 text-2xl font-extrabold leading-tight tracking-[-0.04em] text-[#0F172A] sm:text-3xl">
                   {formatPageTitle(location.pathname, activeRole)}
                 </h1>
               </div>
@@ -197,7 +199,7 @@ export default function AppLayout({ children }) {
       <aside
         aria-label="Notification center"
         className={[
-          "fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-slate-200 bg-[#F8FAFC] shadow-[0_24px_80px_rgba(15,23,42,0.18)] transition-transform duration-200",
+          "fixed inset-y-0 right-0 z-50 h-full w-[min(92vw,26rem)] border-l border-slate-200 bg-[#F8FAFC] shadow-[0_24px_80px_rgba(15,23,42,0.2)] transition-transform duration-300 ease-out",
           isNotificationOpen ? "translate-x-0" : "translate-x-full",
         ].join(" ")}
       >
