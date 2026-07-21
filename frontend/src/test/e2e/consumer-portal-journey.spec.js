@@ -128,6 +128,7 @@ test.describe("Consumer portal end-to-end journey", () => {
     await expect(page.getByTestId("graph-node")).toHaveCount(7);
     await expect(page.getByTestId("axis-month-label").last()).toHaveText("July 2026");
 
+    await page.getByRole("button", { name: "Open account menu" }).click();
     await page.getByRole("button", { name: "Log out" }).click();
     await expect(page).toHaveURL(/\/login$/);
     await page.getByLabel("Email or username").fill("tenant@gmail.com");
@@ -157,6 +158,7 @@ test.describe("Consumer portal end-to-end journey", () => {
     await expect(page.getByTestId("notification-card-2026002")).toHaveCount(0);
     await page.getByRole("button", { name: "Close notification center" }).click();
 
+    await page.getByRole("button", { name: "Open account menu" }).click();
     await page.getByRole("button", { name: "Log out" }).click();
     await page.getByLabel("Email or username").fill("tenant@gmail.com");
     await page.getByLabel("Password", { exact: true }).fill("tenant123");
