@@ -79,6 +79,7 @@ describe("Week 6 Day 1 production PWA", () => {
     expect(outputFiles.some((name) => name.startsWith("workbox-"))).toBe(true);
     expect(builtHtml).toContain('rel="manifest"');
     expect(builtHtml).toContain("/manifest.webmanifest");
+    expect(builtHtml).toContain('name="mobile-web-app-capable" content="yes"');
     expect(applicationBundle).toContain("serviceWorker");
     expect(applicationBundle).toContain("sw.js");
   });
