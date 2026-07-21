@@ -74,7 +74,7 @@ export async function startServers() {
         cwd: server.cwd,
         detached: process.platform !== "win32",
         env: { ...process.env, ...server.env, BROWSER: "none" },
-        stdio: "ignore",
+        stdio: process.env.CI ? "inherit" : "ignore",
         windowsHide: true,
       });
 
